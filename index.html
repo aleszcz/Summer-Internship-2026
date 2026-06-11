@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Internship Workplan — siRNA VAE · Virtual Cell · Agentic</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0e1116;
+    --paper: #f4f1ea;
+    --paper-2: #ebe5d6;
+    --rule: #1a1d22;
+    --accent-primary: #b8421a;     /* burnt sienna — VAE / research core */
+    --accent-secondary: #1f4d3a;   /* deep moss — build weeks */
+    --accent-tertiary: #c8a13a;    /* aged brass — breaks / anchors */
+    --accent-cool: #355687;        /* indigo — buffers */
+    --muted: #6b6557;
+    --highlight: #f5e9c8;
+    --warn: #8a3a1a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Fraunces', Georgia, serif;
+    background: var(--paper); color: var(--ink); line-height: 1.55;
+    font-feature-settings: "ss01","ss02";
+    background-image:
+      radial-gradient(circle at 12% 20%, rgba(184,66,26,0.04) 0%, transparent 35%),
+      radial-gradient(circle at 88% 80%, rgba(31,77,58,0.04) 0%, transparent 40%);
+  }
+  body::before {
+    content:""; position:fixed; inset:0; pointer-events:none; z-index:1; opacity:0.35;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 4rem 2.5rem 6rem; position: relative; z-index: 2; }
+
+  /* MASTHEAD */
+  .masthead { border-bottom: 2px solid var(--rule); padding-bottom: 2rem; margin-bottom: 2.5rem;
+    display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 2rem; }
+  .eyebrow { font-family:'JetBrains Mono',monospace; font-size:0.7rem; text-transform:uppercase;
+    letter-spacing:0.22em; color:var(--accent-primary); margin-bottom:0.8rem; }
+  h1 { font-family:'Fraunces',serif; font-weight:800; font-size:clamp(2rem,5vw,3.4rem); line-height:1.0;
+    letter-spacing:-0.02em; font-style:italic; }
+  h1 .accent { color:var(--accent-primary); font-style:normal; }
+  .meta { font-family:'JetBrains Mono',monospace; font-size:0.72rem; color:var(--muted); text-align:right; line-height:1.7; }
+  .meta .label { color:var(--accent-primary); }
+
+  .lead { font-size:1.12rem; max-width:72ch; margin-bottom:2rem; }
+  .lead strong { color:var(--accent-primary); font-weight:600; }
+
+  /* FIREWALL CALLOUT */
+  .firewall { background:var(--ink); color:var(--paper); padding:1.6rem 2rem; margin:0 0 2.5rem;
+    border-left:4px solid var(--accent-tertiary); }
+  .firewall .label { font-family:'JetBrains Mono',monospace; font-size:0.62rem; letter-spacing:0.25em;
+    color:var(--accent-tertiary); margin-bottom:0.7rem; text-transform:uppercase; }
+  .firewall .statement { font-size:1.15rem; line-height:1.4; font-style:italic; }
+  .firewall .statement b { color:var(--accent-tertiary); font-style:normal; font-weight:600; }
+
+  /* SUMMARY BAR */
+  .summary { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--rule);
+    border:1px solid var(--rule); margin:0 0 2rem; }
+  .summary div { background:var(--paper-2); padding:1rem 1.2rem; }
+  .summary .big { font-family:'Fraunces',serif; font-size:1.8rem; font-weight:700; line-height:1; }
+  .summary .sub { font-family:'JetBrains Mono',monospace; font-size:0.62rem; text-transform:uppercase;
+    letter-spacing:0.12em; color:var(--muted); margin-top:0.4rem; }
+
+  /* LEGEND */
+  .legend { display:flex; gap:1.4rem; flex-wrap:wrap; font-family:'JetBrains Mono',monospace;
+    font-size:0.68rem; margin:1.5rem 0 2rem; text-transform:uppercase; letter-spacing:0.06em; }
+  .legend span { display:flex; align-items:center; gap:0.45rem; }
+  .sw { width:13px; height:13px; border-radius:2px; display:inline-block; }
+  .sw-core { background:var(--accent-primary); }
+  .sw-build { background:var(--accent-secondary); }
+  .sw-buf { background:var(--accent-cool); }
+  .sw-break { background:var(--accent-tertiary); }
+
+  /* TIMELINE */
+  h2 { font-family:'Fraunces',serif; font-weight:600; font-size:1.5rem; margin:3rem 0 1.2rem;
+    padding-top:1.4rem; border-top:1px solid var(--rule); }
+  h2 .num { font-family:'JetBrains Mono',monospace; font-size:0.78rem; color:var(--accent-primary); margin-right:0.7rem; }
+
+  .timeline { position:relative; }
+  .block { display:grid; grid-template-columns: 130px 1fr 96px; gap:1.2rem; align-items:stretch;
+    margin-bottom:0.7rem; }
+  .when { font-family:'JetBrains Mono',monospace; font-size:0.68rem; color:var(--muted); padding-top:1rem; line-height:1.5; }
+  .when .wk { color:var(--ink); font-weight:600; font-size:0.74rem; display:block; margin-bottom:0.25rem; }
+
+  .card { border:1.5px solid; border-radius:4px; padding:1rem 1.2rem; background:var(--paper); border-left-width:5px; }
+  .card.core { border-color:var(--accent-primary); }
+  .card.build { border-color:var(--accent-secondary); }
+  .card.buf { border-color:var(--accent-cool); background:#eef1f6; }
+  .card .title { font-family:'Fraunces',serif; font-size:1.12rem; font-weight:600; margin-bottom:0.3rem; }
+  .card.core .title { color:var(--warn); }
+  .card.build .title { color:var(--accent-secondary); }
+  .card.buf .title { color:var(--accent-cool); }
+  .card .focus { font-size:0.9rem; margin-bottom:0.5rem; }
+  .card .deliv { font-family:'JetBrains Mono',monospace; font-size:0.7rem; color:var(--muted); }
+  .card .deliv b { color:var(--ink); }
+  .pills { margin-top:0.55rem; display:flex; gap:0.4rem; flex-wrap:wrap; }
+  .pill { font-family:'JetBrains Mono',monospace; font-size:0.58rem; padding:0.12em 0.5em; border-radius:2px;
+    letter-spacing:0.06em; text-transform:uppercase; }
+  .pill.lock { background:rgba(31,77,58,0.13); color:var(--accent-secondary); }
+  .pill.risk { background:rgba(184,66,26,0.13); color:var(--warn); }
+  .pill.fork { background:rgba(53,86,135,0.14); color:var(--accent-cool); }
+  .pill.rest { background:var(--highlight); color:#7a5a10; }
+  .pill.anchor { background:var(--ink); color:var(--accent-tertiary); }
+
+  .hours { font-family:'JetBrains Mono',monospace; text-align:right; padding-top:1rem; }
+  .hours .h { font-size:1.05rem; font-weight:600; color:var(--ink); }
+  .hours .left { font-size:0.6rem; color:var(--muted); margin-top:0.2rem; }
+  .bar { height:4px; background:var(--paper-2); border-radius:2px; margin-top:0.4rem; overflow:hidden; }
+  .bar i { display:block; height:100%; background:var(--accent-primary); }
+
+  /* BREAK ROW */
+  .break-row { display:grid; grid-template-columns:130px 1fr 96px; gap:1.2rem; margin-bottom:0.7rem; }
+  .break-bar { grid-column:2; border:2px dashed var(--accent-tertiary); background:var(--highlight);
+    border-radius:4px; padding:0.7rem 1.2rem; font-family:'JetBrains Mono',monospace; font-size:0.74rem;
+    color:#7a5a10; display:flex; align-items:center; gap:0.6rem; letter-spacing:0.05em; }
+
+  /* ANCHORS + FORK */
+  .callout { background:var(--paper-2); border:1px solid var(--rule); border-left:4px solid var(--accent-tertiary);
+    padding:1.4rem 1.6rem; margin:1.5rem 0; }
+  .callout .label { font-family:'JetBrains Mono',monospace; font-size:0.62rem; letter-spacing:0.2em;
+    text-transform:uppercase; color:var(--warn); margin-bottom:0.8rem; }
+  .callout p { margin-bottom:0.6rem; max-width:74ch; font-size:0.95rem; }
+  .callout p:last-child { margin-bottom:0; }
+  .callout code { font-family:'JetBrains Mono',monospace; font-size:0.82em; background:var(--paper); padding:0.1em 0.35em; border-radius:2px; }
+
+  .fork { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin:1.2rem 0; }
+  .fork-card { border:1.5px solid; border-radius:4px; padding:1.2rem 1.3rem; }
+  .fork-card.go { border-color:var(--accent-secondary); background:#eef3ef; }
+  .fork-card.no { border-color:var(--accent-cool); background:#eef1f6; }
+  .fork-card h4 { font-family:'JetBrains Mono',monospace; font-size:0.66rem; letter-spacing:0.12em;
+    text-transform:uppercase; margin-bottom:0.6rem; }
+  .fork-card.go h4 { color:var(--accent-secondary); }
+  .fork-card.no h4 { color:var(--accent-cool); }
+  .fork-card p { font-size:0.9rem; margin:0; }
+
+  .footer { margin-top:3.5rem; padding-top:1.5rem; border-top:2px solid var(--rule);
+    font-family:'JetBrains Mono',monospace; font-size:0.68rem; color:var(--muted); line-height:1.8; }
+  .footer b { color:var(--ink); }
+
+  @media (max-width:760px) {
+    .summary { grid-template-columns:repeat(2,1fr); }
+    .fork { grid-template-columns:1fr; }
+    .block, .break-row { grid-template-columns:1fr; }
+    .when { padding-top:0; } .hours { text-align:left; padding-top:0.3rem; }
+    .break-bar { grid-column:1; }
+    .masthead { grid-template-columns:1fr; } .meta { text-align:left; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="masthead">
+    <div>
+      <div class="eyebrow">Summer Internship 2026 · Workplan</div>
+      <h1><span class="accent">VAE</span> · Virtual Cell · Agentic Wrap</h1>
+    </div>
+    <div class="meta">
+      <div><span class="label">window</span> Jun 11 → Sep 7</div>
+      <div><span class="label">budget</span> 240h · 48 days · 5h/day</div>
+      <div><span class="label">owned</span> VAE · vcell · agentic</div>
+      <div><span class="label">external</span> P0 AWS deploy</div>
+    </div>
+  </div>
+
+  <p class="lead">
+    Four workstreams, one person, ten and a half calendar weeks. The plan protects the <strong>VAE</strong> (the
+    research core) with a clean four-week arc, scopes the virtual cell to a minimal slip-emitter, treats the
+    <strong>agentic wrap as a droppable stretch</strong>, and integrates against the AWS deployment late so
+    someone else's timeline can't stall the demo.
+  </p>
+
+  <div class="firewall">
+    <div class="label">Thesis guardrail — read before Week 1</div>
+    <div class="statement">
+      The VAE is a <b>proposal generator, not a scorer</b>. It samples candidate modification patterns; the
+      deterministic ΔΔG/activity head still decides. Generation proposes, <b>biophysics decides</b> — which is
+      what keeps a generative model inside the framework's "not a language model" stance.
+    </div>
+  </div>
+
+  <div class="summary">
+    <div><div class="big">240h</div><div class="sub">total budget</div></div>
+    <div><div class="big">48</div><div class="sub">working days</div></div>
+    <div><div class="big">3</div><div class="sub">rest days placed</div></div>
+    <div><div class="big">2</div><div class="sub">breaks · 2 anchors</div></div>
+  </div>
+
+  <div class="legend">
+    <span><i class="sw sw-core"></i> research core (VAE)</span>
+    <span><i class="sw sw-build"></i> build / integrate</span>
+    <span><i class="sw sw-buf"></i> buffer</span>
+    <span><i class="sw sw-break"></i> break / rest</span>
+  </div>
+
+  <!-- ================= TIMELINE ================= -->
+  <h2><span class="num">§ 01</span> The eight weeks, on the calendar</h2>
+  <div class="timeline">
+
+    <div class="block">
+      <div class="when"><span class="wk">Week 1</span>Thu Jun 11 –<br>Fri Jun 19</div>
+      <div class="card core">
+        <div class="title">Ramp + VAE data prep + baseline</div>
+        <div class="focus">Reproduce P2–P4 locally, trace one design end to end. Build the modification-pattern dataset from the factorized channels (base/sugar/linker per position, §10 alphabet) over the ~3.5K activity set. Measure the <b>baseline to beat</b> — beam-search coverage and quality — and write it down now.</div>
+        <div class="deliv"><b>Deliverable:</b> dataset + beam-search baseline numbers + one-page scope doc</div>
+      </div>
+      <div class="hours"><div class="h">35h</div><div class="left">205 left</div><div class="bar"><i style="width:14.6%"></i></div></div>
+    </div>
+
+    <div class="block">
+      <div class="when"><span class="wk">Week 2</span>Mon Jun 22 –<br>Fri Jun 26</div>
+      <div class="card core">
+        <div class="title">VAE v0 — reconstruction</div>
+        <div class="focus">Small encoder/decoder over modification patterns, reconstruction objective only. Verify valid patterns (legal alphabet per position, no nonsense). Get the latent space behaving before any conditioning.</div>
+        <div class="deliv"><b>Deliverable:</b> VAE reconstructs held-out patterns; reconstruction metric logged</div>
+      </div>
+      <div class="hours"><div class="h">25h</div><div class="left">180 left</div><div class="bar"><i style="width:25%"></i></div></div>
+    </div>
+
+    <div class="block">
+      <div class="when"><span class="wk">Week 3</span>Mon Jun 29 –<br>Thu Jul 2</div>
+      <div class="card core">
+        <div class="title">Conditional VAE</div>
+        <div class="focus">Condition on the target potency / ΔΔG window so you sample <em>toward</em> a window. Add KL annealing and latent regularization — at ~3.5K points overfitting is the real enemy, budget for it. Score every sample with the deterministic head.</div>
+        <div class="deliv"><b>Deliverable:</b> conditional sampling + deterministically-scored candidates</div>
+        <div class="pills"><span class="pill rest">🌙 Fri Jul 3 off</span></div>
+      </div>
+      <div class="hours"><div class="h">20h</div><div class="left">160 left</div><div class="bar"><i style="width:33%"></i></div></div>
+    </div>
+
+    <div class="break-row"><div class="break-bar">🌴 Break 1 · Sat Jul 4 – Fri Jul 10</div></div>
+
+    <div class="block">
+      <div class="when"><span class="wk">Week 4</span>Mon Jul 13 –<br>Fri Jul 17</div>
+      <div class="card core">
+        <div class="title">VAE evaluation — the centerpiece</div>
+        <div class="focus">The honest eval: coverage vs. beam search, validity rate, whether conditional sampling actually hits the requested window, held-out reconstruction. Produces the headline finding — <em>VAE sampling vs. beam search for modification-space coverage</em>.</div>
+        <div class="deliv"><b>Deliverable:</b> VAE eval report with the baseline comparison</div>
+        <div class="pills"><span class="pill lock">🔒 protected</span></div>
+      </div>
+      <div class="hours"><div class="h">25h</div><div class="left">135 left</div><div class="bar"><i style="width:43.75%"></i></div></div>
+    </div>
+
+    <div class="block">
+      <div class="when"><span class="wk">Week 5</span>Tue Jul 21 –<br>Fri Jul 24</div>
+      <div class="card build">
+        <div class="title">Virtual cell → slip</div>
+        <div class="focus">Adapt your example to the Stage A→B→C emitter: Stage A disease-state vector (PCA-displacement baseline on a real dataset), Stage B GRN propagation + σ, Stage C rank + dose-response → a Tier-1-valid <code>TargetNomination</code>. Minimal — it feeds the pipeline a real target, not a foundation model.</div>
+        <div class="deliv"><b>Deliverable:</b> virtual cell emits a valid slip</div>
+        <div class="pills"><span class="pill rest">🌙 Mon Jul 20 off</span><span class="pill anchor">⚓ P0 contract by Jul 24</span></div>
+      </div>
+      <div class="hours"><div class="h">20h</div><div class="left">115 left</div><div class="bar"><i style="width:52%"></i></div></div>
+    </div>
+
+    <div class="block">
+      <div class="when"><span class="wk">Week 6</span>Mon Jul 27 –<br>Fri Jul 31</div>
+      <div class="card build">
+        <div class="title">Integration — the pivot</div>
+        <div class="focus">End to end on SNCA: slip → gate → P2–P4 designs → VAE proposes modifications → deterministic head scores → SAR matrix fills. Integrate against P0's endpoint/RDS if ready; fall back to local pipeline + SQLite if not — the decoupling that keeps the demo safe.</div>
+        <div class="deliv"><b>Deliverable:</b> one demonstrable run, nomination → scored modified candidates</div>
+        <div class="pills"><span class="pill lock">🔒 protected</span><span class="pill risk">⚠️ highest risk</span></div>
+      </div>
+      <div class="hours"><div class="h">25h</div><div class="left">90 left</div><div class="bar"><i style="width:62.5%"></i></div></div>
+    </div>
+
+    <div class="block">
+      <div class="when"><span class="wk">Week 7</span>Mon Aug 3 –<br>Fri Aug 7</div>
+      <div class="card build">
+        <div class="title">Agentic stretch OR hardening</div>
+        <div class="focus">The fork, decided at week start from W6 state. On track → LangGraph Navigator spine (slip-gate must-fire edge, triage node, selection interrupt). Behind → drop agentic, harden integration, sharpen the eval. Both are legitimate outcomes.</div>
+        <div class="deliv"><b>Deliverable:</b> working Navigator graph (triage + interrupt) <b>or</b> hardened, tested system</div>
+        <div class="pills"><span class="pill fork">⑂ go / no-go</span></div>
+      </div>
+      <div class="hours"><div class="h">25h</div><div class="left">65 left</div><div class="bar"><i style="width:72.9%"></i></div></div>
+    </div>
+
+    <div class="block">
+      <div class="when"><span class="wk">Buffer A</span>Mon Aug 10 –<br>Thu Aug 13</div>
+      <div class="card buf">
+        <div class="title">Overflow + agentic-sacrifice point</div>
+        <div class="focus">Absorbs any W6–W7 slip. If integration was shaky leaving July, this is where the agentic stretch gets cut to protect the core. Decide here — don't drift.</div>
+        <div class="deliv"><b>Role:</b> realistic catch-up; load-bearing slack, not padding</div>
+        <div class="pills"><span class="pill rest">🌙 Fri Aug 14 off</span></div>
+      </div>
+      <div class="hours"><div class="h">20h</div><div class="left">45 left</div><div class="bar"><i style="width:81.25%"></i></div></div>
+    </div>
+
+    <div class="block">
+      <div class="when"><span class="wk">Week 8</span>Mon Aug 17 –<br>Fri Aug 21</div>
+      <div class="card build">
+        <div class="title">Freeze · eval · demo · writeup</div>
+        <div class="focus">Lock the code, compute final numbers, build the demo (notebook or thin UI walking the end-to-end flow, pointed at P0's deployment if live), write the report/README in house style, document done / stubbed / next.</div>
+        <div class="deliv"><b>Deliverable:</b> demo + writeup + clean handoff</div>
+        <div class="pills"><span class="pill lock">🔒 protected</span></div>
+      </div>
+      <div class="hours"><div class="h">25h</div><div class="left">20 left</div><div class="bar"><i style="width:91.7%"></i></div></div>
+    </div>
+
+    <div class="break-row"><div class="break-bar">🌴 Break 2 · Mon Aug 24 – Sat Aug 30</div></div>
+
+    <div class="block">
+      <div class="when"><span class="wk">Final</span>Tue Sep 1 –<br>Fri Sep 4</div>
+      <div class="card buf">
+        <div class="title">Polish + handoff</div>
+        <div class="focus">Return from the break with fresh eyes: polish the demo, address writeup feedback, clean the handoff repo, present. The W8 draft has been sitting a week — you revise rather than ship a first pass.</div>
+        <div class="deliv"><b>End:</b> Mon Sep 7 (Labor Day)</div>
+      </div>
+      <div class="hours"><div class="h">20h</div><div class="left">0 left</div><div class="bar"><i style="width:100%"></i></div></div>
+    </div>
+
+  </div>
+
+  <!-- ================= ANCHORS ================= -->
+  <h2><span class="num">§ 02</span> Two anchor dates — do not slip</h2>
+  <div class="callout">
+    <div class="label">Hard dates the rest of the plan hangs on</div>
+    <p><strong>Fri Jul 24 — confirm the P0 integration contract.</strong> Endpoint + RDS schema, or agree the local fallback. You walk into the Week 6 integration pivot on Jul 27 knowing which path you're on — not discovering it mid-week.</p>
+    <p><strong>Buffer A (Aug 10–13) — the agentic-sacrifice decision.</strong> If SNCA end-to-end is shaky leaving July, this is where the agentic stretch gets cut to protect the core. Make the call here deliberately.</p>
+  </div>
+
+  <!-- ================= FORK ================= -->
+  <h2><span class="num">§ 03</span> The Week 7 fork, written as go / no-go</h2>
+  <p style="max-width:74ch; margin-bottom:0.5rem;">Decided at the <em>start</em> of Week 7, based on whether Week 6 produced a working end-to-end run. Both branches ship a defensible deliverable.</p>
+  <div class="fork">
+    <div class="fork-card go">
+      <h4>▶ GO · integration solid</h4>
+      <p>Build the LangGraph Navigator spine: slip gate as a must-fire edge, triage node (single structured-reasoning call), selection interrupt (HITL). Stub the ReAct research island unless there's real slack. <em>Deliverable: working Navigator graph with triage + interrupt.</em></p>
+    </div>
+    <div class="fork-card no">
+      <h4>■ NO-GO · integration shaky</h4>
+      <p>Drop agentic entirely. Harden the integration, sharpen the VAE eval, fix bugs, widen test coverage. No regret — the internship narrative holds without the agentic layer. <em>Deliverable: hardened, well-tested end-to-end system.</em></p>
+    </div>
+  </div>
+
+  <div class="footer">
+    <b>The narrative this delivers:</b> built and honestly evaluated a VAE modification generator scored inside the biophysics firewall, fed by a minimal virtual-cell front end through the slip contract, integrated into the deployed pipeline, with an agentic prototype on top.<br>
+    Four workstreams visible in the story — and the one not owned (deployment) is the one least exposed.<br>
+    <b>Rest days:</b> Fri Jul 3 · Mon Jul 20 · Fri Aug 14 — 255h → 240h, placed at low-risk seams. <b>Protected weeks:</b> W4 eval · W6 integration · W8 demo.
+  </div>
+
+</div>
+</body>
+</html>
